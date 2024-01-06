@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gestion.tienda.exception.ResourceNotFoundException;
+import com.gestion.tienda.model.Categoria;
 import com.gestion.tienda.model.Producto;
+import com.gestion.tienda.repository.CategoriaRepository;
 import com.gestion.tienda.repository.ProductoRepository;
 
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -26,15 +28,20 @@ import com.gestion.tienda.repository.ProductoRepository;
 public class ProductoController {
     @Autowired
     private ProductoRepository productoRepository;
+    @Autowired
+    private CategoriaRepository categoriaRepository;
 
     @GetMapping("/productos")
     public List<Producto> listarProductos() {
-        System.out.println("Debugging: listarProductos() method called");
         return productoRepository.findAll();
     }
 
     @PostMapping("/productos")
     public Producto guardarProducto(@RequestBody Producto producto) {
+        // Buscar la categoría por su ID
+        Categoria categoria = categoriaRepository.findById(producto.getCategoria().getId()).get();
+        // Asignar la categoría al producto
+        producto.setCategoria(categoria);
 
         return productoRepository.save(producto);
     }
@@ -46,14 +53,18 @@ public class ProductoController {
         return ResponseEntity.ok().body(producto);
     }
 
-
     @PutMapping("/productos/{id}")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto productoRequest) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado para este id :: " + id));
         producto.setNombre(productoRequest.getNombre());
         producto.setDescripcion(productoRequest.getDescripcion());
-        producto.setCategoria(productoRequest.getCategoria());
+
+        // Busca la categoría completa y asignala al producto
+        Categoria categoria = categoriaRepository.findById(productoRequest.getCategoria().getId()).get();
+        producto.setCategoria(categoria);
+        // producto.setCategoria(productoRequest.getCategoria());
+
         producto.setPrecio(productoRequest.getPrecio());
         producto.setStock(productoRequest.getStock());
 

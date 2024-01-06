@@ -1,5 +1,7 @@
 package com.gestion.tienda.model;
 
+import java.time.LocalDate;
+
 // import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,20 +19,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "producto")
-
-public class Producto {
-    
+@Table(name = "venta")
+public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String nombre;
-    private String descripcion;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoriaId")
-    private Categoria categoria;
+    @JoinColumn(name = "clienteId")
+    private Cliente cliente;
 
-    private Float precio;
-    private Integer stock;    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "productoId")
+    private Producto producto;
+
+    private Integer cantidad;
+    private Float montoTotal;
+    private LocalDate fecha;
+
 }
